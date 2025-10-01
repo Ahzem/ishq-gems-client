@@ -1,0 +1,168 @@
+@import "tailwindcss";
+@import "./themes/light.css";
+@import "./themes/dark.css";
+@import "./components.css";
+@import "./animations.css";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-inter);
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  /* Mobile optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.font-serif {
+  font-family: var(--font-playfair), serif;
+}
+
+/* Mobile-optimized scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Custom text selection colors */
+::selection {
+  background: var(--primary);
+  color: var(--background);
+}
+
+::-moz-selection {
+  background: var(--primary);
+  color: var(--background);
+}
+
+/* Selection for gold/primary colored text */
+.text-primary ::selection,
+.text-accent ::selection,
+.text-yellow-500 ::selection,
+.text-amber-500 ::selection,
+[style*="color: #d4af37"] ::selection,
+[style*="color: #ffd700"] ::selection {
+  background: var(--foreground);
+  color: var(--primary);
+}
+
+.text-primary ::-moz-selection,
+.text-accent ::-moz-selection,
+.text-yellow-500 ::-moz-selection,
+.text-amber-500 ::-moz-selection,
+[style*="color: #d4af37"] ::-moz-selection,
+[style*="color: #ffd700"] ::-moz-selection {
+  background: var(--foreground);
+  color: var(--primary);
+}
+
+/* Enhanced selection for luxury elements */
+.luxury-selection ::selection {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: var(--background);
+}
+
+.luxury-selection ::-moz-selection {
+  background: var(--primary);
+  color: var(--background);
+}
+
+/* Luxury gold text selection */
+.luxury-selection .text-primary ::selection,
+.luxury-selection .text-accent ::selection {
+  background: var(--foreground);
+  color: var(--primary);
+}
+
+.luxury-selection .text-primary ::-moz-selection,
+.luxury-selection .text-accent ::-moz-selection {
+  background: var(--foreground);
+  color: var(--primary);
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Mobile-specific utilities */
+@media (max-width: 640px) {
+  /* Reduce motion for mobile users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .luxury-fade-in,
+    .luxury-slide-up,
+    .animate-slow-zoom,
+    .animate-pulse-slow,
+    .animate-float-slow,
+    .animate-float-delayed,
+    .animate-float-reverse,
+    .animate-spin-slow,
+    .animate-spin-reverse,
+    .animate-pulse-fast,
+    .animate-sparkle-1,
+    .animate-sparkle-2,
+    .animate-sparkle-3,
+    .animate-sparkle-4,
+    .animate-twinkle,
+    .animate-slide-up,
+    .animate-slide-up-delayed,
+    .animate-gradient-flow,
+    .animate-count-up,
+    .animate-drift-right,
+    .animate-drift-left,
+    .animate-border-flow,
+    .animate-border-flow-reverse {
+      animation: none;
+    }
+    
+    * {
+      transition: none !important;
+    }
+  }
+  
+  /* Mobile-optimized focus states */
+  button:focus,
+  a:focus,
+  input:focus,
+  select:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}

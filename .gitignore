@@ -1,0 +1,138 @@
+# Dependencies
+node_modules/
+.pnpm/
+.yarn/
+.npm/
+
+# Package manager files
+package-lock.json
+.pnpm-lock.yaml
+yarn.lock
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# Build output
+build/
+dist/
+.next/
+out/
+
+# Next.js build files
+.next/
+out/
+next-env.d.ts
+
+# Environment variables
+.env
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Testing
+.jest/
+test-results/
+junit.xml
+
+# Temporary folders
+.tmp/
+tmp/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Vercel
+.vercel
+.vercel.json
+
+# Storybook
+storybook-static/
+
+# Chromatic
+chromatic.log
+
+# PWA files
+sw.js
+sw.js.map
+workbox-*.js
+workbox-*.js.map
+
+# Local development
+.local/
+
+# Docker
+.dockerignore
+Dockerfile.dev
+docker-compose.override.yml
+
+# Tailwind
+tailwind.config.js.backup
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.backup
+*.bak
+
+# Upload directories
+uploads/
+public/uploads/
+
+# Performance monitoring
+.clinic/
+
+# Sentry
+.sentryclirc
+
+# Bundler analysis
+.bundle-analyzer/
+bundle-report.html
+
+# Turbopack
+.turbo/
+

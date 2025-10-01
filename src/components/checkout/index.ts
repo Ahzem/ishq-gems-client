@@ -1,0 +1,5 @@
+export { default as CheckoutPage } from './CheckoutPage'
+export { default as PaymentMethods } from './PaymentMethods'
+export { default as OrderSummary } from './OrderSummary'
+export { default as BillingShipping } from './BillingShipping'
+export { default as CheckoutSuccess } from './CheckoutSuccess'
