@@ -37,7 +37,7 @@ export default function InvoiceGenerator({
 
   return (
     <div className={cn("bg-card rounded-xl overflow-hidden", className)}>
-      <div ref={printRef} className="p-0">
+      <div ref={printRef} className="p-0 print:p-4">
         {/* Header */}
         <div className="relative overflow-hidden">
           {/* Background Pattern */}
@@ -49,9 +49,9 @@ export default function InvoiceGenerator({
           </div>
           
           {/* Header Content */}
-          <div className="relative bg-gradient-to-br from-primary via-accent to-primary text-primary-foreground p-10 text-center">
+          <div className="relative bg-gradient-to-br from-primary via-accent to-primary text-primary-foreground p-4 sm:p-6 lg:p-10 xl:p-12 text-center">
             <div className="relative z-10">
-              <div className="flex items-start justify-center gap-4 mb-2 luxury-fade-in">
+              <div className="flex items-start justify-center gap-2 sm:gap-3 lg:gap-4 xl:gap-6 mb-2 luxury-fade-in">
                 <Image 
                   src="/images/logo/ishq-gems-logo-only.png" 
                   alt="Ishq Gems Logo" 
@@ -67,10 +67,10 @@ export default function InvoiceGenerator({
                   height={64}
                 />
               </div>
-              <div className="text-sm opacity-90 font-medium mb-6 luxury-slide-up">
+              <div className="text-xs sm:text-sm lg:text-base opacity-90 font-medium mb-3 sm:mb-4 lg:mb-6 xl:mb-8 luxury-slide-up">
                 Premium Gemstone Marketplace
               </div>
-              <div className="text-3xl font-serif font-bold tracking-wider animate-slide-up-delayed">
+              <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-serif font-bold tracking-wider animate-slide-up-delayed">
                 INVOICE
               </div>
             </div>
@@ -81,26 +81,26 @@ export default function InvoiceGenerator({
         </div>
 
         {/* Invoice Number */}
-        <div className="mx-10 mt-8 mb-8">
-          <div className="bg-gradient-to-r from-primary to-accent text-primary-foreground p-6 rounded-xl text-center font-bold text-xl border-2 border-primary shadow-lg">
+        <div className="mx-4 sm:mx-6 lg:mx-10 xl:mx-12 mt-4 sm:mt-6 lg:mt-8 xl:mt-10 mb-4 sm:mb-6 lg:mb-8 xl:mb-10">
+          <div className="bg-gradient-to-r from-primary to-accent text-primary-foreground p-3 sm:p-4 lg:p-6 xl:p-8 rounded-lg sm:rounded-xl text-center font-bold text-lg sm:text-xl lg:text-2xl border-2 border-primary shadow-lg">
             Invoice #{invoiceData.orderNumber}
           </div>
         </div>
 
         {/* Invoice Info */}
-        <div className="flex flex-col lg:flex-row gap-8 mx-10 mb-10">
-          <div className="flex-1 space-y-4">
-            <h3 className="text-xl font-serif font-bold text-primary border-b-2 border-border pb-2">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 xl:gap-10 mx-4 sm:mx-6 lg:mx-10 xl:mx-12 mb-6 sm:mb-8 lg:mb-10 xl:mb-12">
+          <div className="flex-1 space-y-3 sm:space-y-4 lg:space-y-5">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-serif font-bold text-primary border-b-2 border-border pb-1 sm:pb-2 lg:pb-3">
               Bill To
             </h3>
-            <div className="space-y-2 text-sm">
-              <p className="font-semibold text-foreground text-base">{invoiceData.customer.name}</p>
+            <div className="space-y-1 sm:space-y-2 lg:space-y-3 text-xs sm:text-sm lg:text-base">
+              <p className="font-semibold text-foreground text-sm sm:text-base lg:text-lg">{invoiceData.customer.name}</p>
               <p className="text-muted-foreground">{invoiceData.customer.email}</p>
               {invoiceData.customer.phone && (
                 <p className="text-muted-foreground">{invoiceData.customer.phone}</p>
               )}
               {invoiceData.customer.address && (
-                <div className="text-muted-foreground space-y-1">
+                <div className="text-muted-foreground space-y-0.5 sm:space-y-1 lg:space-y-1.5">
                   <p>{invoiceData.customer.address.street}</p>
                   <p>{invoiceData.customer.address.city}, {invoiceData.customer.address.state}</p>
                   <p>{invoiceData.customer.address.country} {invoiceData.customer.address.zipCode}</p>
@@ -109,18 +109,18 @@ export default function InvoiceGenerator({
             </div>
           </div>
           
-          <div className="flex-1 space-y-4">
-            <h3 className="text-xl font-serif font-bold text-primary border-b-2 border-border pb-2">
+          <div className="flex-1 space-y-3 sm:space-y-4 lg:space-y-5">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-serif font-bold text-primary border-b-2 border-border pb-1 sm:pb-2 lg:pb-3">
               Invoice Details
             </h3>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-1 sm:space-y-2 lg:space-y-3 text-xs sm:text-sm lg:text-base">
               <p><span className="font-semibold">Date:</span> {formatDate(invoiceData.orderDate)}</p>
               <p><span className="font-semibold">Order ID:</span> {invoiceData.orderNumber}</p>
               <p><span className="font-semibold">Payment Method:</span> {invoiceData.payment.method.replace('-', ' ').toUpperCase()}</p>
-              <p className="flex items-center gap-2">
+              <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 lg:gap-3">
                 <span className="font-semibold">Status:</span> 
                 <span className={cn(
-                  "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide",
+                  "px-2 sm:px-3 lg:px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide",
                   InvoiceService.getPaymentStatusColor(invoiceData.payment.status)
                 )}>
                   {invoiceData.payment.status}
@@ -134,65 +134,68 @@ export default function InvoiceGenerator({
         </div>
 
         {/* Items Table */}
-        <div className="mx-10 mb-10">
-          <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-muted to-muted/50">
-                  <th className="text-left p-4 font-bold text-sm uppercase tracking-wide text-foreground">Item</th>
-                  <th className="text-left p-4 font-bold text-sm uppercase tracking-wide text-foreground">Seller</th>
-                  <th className="text-left p-4 font-bold text-sm uppercase tracking-wide text-foreground">Qty</th>
-                  <th className="text-left p-4 font-bold text-sm uppercase tracking-wide text-foreground">Unit Price</th>
-                  <th className="text-left p-4 font-bold text-sm uppercase tracking-wide text-foreground">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoiceData.items.map((item, index) => (
-                  <tr key={index} className="border-t border-border hover:bg-muted/30 transition-colors">
-                    <td className="p-4">
-                      <div className="font-bold text-foreground mb-1 text-base">{item.name}</div>
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <div>{item.gemType} • {item.color} • {item.weight}ct</div>
-                        {item.reportNumber && <div>Report: {item.reportNumber}</div>}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-sm font-medium text-primary">{item.sellerName}</div>
-                    </td>
-                    <td className="p-4 text-foreground font-medium">{item.quantity}</td>
-                    <td className="p-4 text-foreground font-medium">{formatCurrency(item.unitPrice)}</td>
-                    <td className="p-4 text-foreground font-bold">{formatCurrency(item.totalPrice)}</td>
+        <div className="mx-4 sm:mx-6 lg:mx-10 xl:mx-12 mb-6 sm:mb-8 lg:mb-10 xl:mb-12">
+          <div className="bg-card border border-border rounded-lg sm:rounded-xl overflow-hidden shadow-lg">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[600px]">
+                <thead>
+                  <tr className="bg-gradient-to-r from-muted to-muted/50">
+                    <th className="text-left p-2 sm:p-3 lg:p-4 xl:p-6 font-bold text-xs sm:text-sm lg:text-base uppercase tracking-wide text-foreground">Item</th>
+                    <th className="text-left p-2 sm:p-3 lg:p-4 xl:p-6 font-bold text-xs sm:text-sm lg:text-base uppercase tracking-wide text-foreground hidden sm:table-cell">Seller</th>
+                    <th className="text-left p-2 sm:p-3 lg:p-4 xl:p-6 font-bold text-xs sm:text-sm lg:text-base uppercase tracking-wide text-foreground">Qty</th>
+                    <th className="text-left p-2 sm:p-3 lg:p-4 xl:p-6 font-bold text-xs sm:text-sm lg:text-base uppercase tracking-wide text-foreground hidden md:table-cell">Unit Price</th>
+                    <th className="text-left p-2 sm:p-3 lg:p-4 xl:p-6 font-bold text-xs sm:text-sm lg:text-base uppercase tracking-wide text-foreground">Total</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {invoiceData.items.map((item, index) => (
+                    <tr key={index} className="border-t border-border hover:bg-muted/30 transition-colors">
+                      <td className="p-2 sm:p-3 lg:p-4 xl:p-6">
+                        <div className="font-bold text-foreground mb-0.5 sm:mb-1 lg:mb-2 text-sm sm:text-base lg:text-lg">{item.name}</div>
+                        <div className="text-xs sm:text-sm lg:text-base text-muted-foreground space-y-0.5 sm:space-y-1 lg:space-y-1.5">
+                          <div>{item.gemType} • {item.color} • {item.weight}ct</div>
+                          {item.reportNumber && <div>Report: {item.reportNumber}</div>}
+                          <div className="sm:hidden text-primary font-medium">{item.sellerName}</div>
+                        </div>
+                      </td>
+                      <td className="p-2 sm:p-3 lg:p-4 xl:p-6 hidden sm:table-cell">
+                        <div className="text-xs sm:text-sm lg:text-base font-medium text-primary">{item.sellerName}</div>
+                      </td>
+                      <td className="p-2 sm:p-3 lg:p-4 xl:p-6 text-foreground font-medium text-xs sm:text-sm lg:text-base">{item.quantity}</td>
+                      <td className="p-2 sm:p-3 lg:p-4 xl:p-6 text-foreground font-medium text-xs sm:text-sm lg:text-base hidden md:table-cell">{formatCurrency(item.unitPrice)}</td>
+                      <td className="p-2 sm:p-3 lg:p-4 xl:p-6 text-foreground font-bold text-xs sm:text-sm lg:text-base">{formatCurrency(item.totalPrice)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         {/* Totals */}
-        <div className="mx-10 mb-10">
-          <div className="bg-gradient-to-br from-muted/30 to-muted/50 p-8 rounded-xl border border-border shadow-lg">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-base">
+        <div className="mx-4 sm:mx-6 lg:mx-10 xl:mx-12 mb-6 sm:mb-8 lg:mb-10 xl:mb-12">
+          <div className="bg-gradient-to-br from-muted/30 to-muted/50 p-4 sm:p-6 lg:p-8 xl:p-10 rounded-lg sm:rounded-xl border border-border shadow-lg">
+            <div className="space-y-2 sm:space-y-3 lg:space-y-4">
+              <div className="flex justify-between items-center text-sm sm:text-base lg:text-lg">
                 <span className="text-muted-foreground">Subtotal:</span>
                 <span className="font-medium text-foreground">{formatCurrency(invoiceData.totals.subtotal)}</span>
               </div>
-              <div className="flex justify-between items-center text-base">
+              <div className="flex justify-between items-center text-sm sm:text-base lg:text-lg">
                 <span className="text-muted-foreground">Shipping:</span>
                 <span className="font-medium text-foreground">{formatCurrency(invoiceData.totals.shipping)}</span>
               </div>
-              <div className="flex justify-between items-center text-base">
+              <div className="flex justify-between items-center text-sm sm:text-base lg:text-lg">
                 <span className="text-muted-foreground">Taxes:</span>
                 <span className="font-medium text-foreground">{formatCurrency(invoiceData.totals.taxes)}</span>
               </div>
               {invoiceData.totals.discount && (
-                <div className="flex justify-between items-center text-base">
+                <div className="flex justify-between items-center text-sm sm:text-base lg:text-lg">
                   <span className="text-muted-foreground">Discount:</span>
                   <span className="font-medium text-green-600">-{formatCurrency(invoiceData.totals.discount)}</span>
                 </div>
               )}
-              <div className="border-t-2 border-primary pt-4 mt-4">
-                <div className="flex justify-between items-center text-2xl font-bold text-primary">
+              <div className="border-t-2 border-primary pt-3 sm:pt-4 lg:pt-5 mt-3 sm:mt-4 lg:mt-5">
+                <div className="flex justify-between items-center text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-primary">
                   <span>Total Amount:</span>
                   <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     {formatCurrency(invoiceData.totals.total)}
@@ -204,16 +207,16 @@ export default function InvoiceGenerator({
         </div>
 
         {/* Payment Information */}
-        <div className="mx-10 mb-10">
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 p-8 rounded-xl">
-            <h3 className="text-xl font-bold text-green-700 dark:text-green-400 mb-4 flex items-center gap-2">
+        <div className="mx-4 sm:mx-6 lg:mx-10 mb-6 sm:mb-8 lg:mb-10">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 p-4 sm:p-6 lg:p-8 rounded-lg sm:rounded-xl">
+            <h3 className="text-lg sm:text-xl font-bold text-green-700 dark:text-green-400 mb-3 sm:mb-4 flex items-center gap-1 sm:gap-2">
               🔒 Payment & Security
             </h3>
-            <div className="space-y-3 text-sm">
-              <p className="flex items-center gap-2">
+            <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
+              <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                 <span className="font-semibold text-green-800 dark:text-green-300">Payment Status:</span>
                 <span className={cn(
-                  "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide",
+                  "px-2 sm:px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide",
                   InvoiceService.getPaymentStatusColor(invoiceData.payment.status)
                 )}>
                   {invoiceData.payment.status}
@@ -241,12 +244,12 @@ export default function InvoiceGenerator({
 
         {/* Notes */}
         {invoiceData.notes && (
-          <div className="mx-10 mb-10">
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-6 rounded-xl">
-              <h3 className="text-lg font-bold text-blue-700 dark:text-blue-400 mb-3 flex items-center gap-2">
+          <div className="mx-4 sm:mx-6 lg:mx-10 mb-6 sm:mb-8 lg:mb-10">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 sm:p-6 rounded-lg sm:rounded-xl">
+              <h3 className="text-base sm:text-lg font-bold text-blue-700 dark:text-blue-400 mb-2 sm:mb-3 flex items-center gap-1 sm:gap-2">
                 📝 Notes
               </h3>
-              <p className="text-blue-700 dark:text-blue-300 text-sm leading-relaxed">
+              <p className="text-blue-700 dark:text-blue-300 text-xs sm:text-sm leading-relaxed">
                 {invoiceData.notes}
               </p>
             </div>
@@ -254,8 +257,8 @@ export default function InvoiceGenerator({
         )}
 
         {/* Footer */}
-        <div className="bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground p-8 text-center border-t border-border">
-          <div className="flex items-start justify-center gap-3 mb-4 luxury-slide-up bg-white/90 px-6 py-4 rounded-xl">
+        <div className="bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground p-4 sm:p-6 lg:p-8 text-center border-t border-border">
+          <div className="flex items-start justify-center gap-2 sm:gap-3 mb-3 sm:mb-4 luxury-slide-up bg-white/90 px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl">
             <Image 
               src="/images/logo/ishq-gems-logo-only.png" 
               alt="Ishq Gems Logo" 
@@ -271,10 +274,10 @@ export default function InvoiceGenerator({
               height={32}
             />
           </div>
-          <div className="text-lg font-semibold mb-2">
+          <div className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">
             Thank you for choosing us!
           </div>
-          <div className="text-sm opacity-80">
+          <div className="text-xs sm:text-sm opacity-80">
             For support, contact us at {config.companyEmail || 'support@ishqgems.com'} | 
             Visit us at {config.companyWebsite || 'ishqgems.com'}
           </div>
@@ -283,21 +286,22 @@ export default function InvoiceGenerator({
 
       {/* Action Buttons */}
       {showActions && (
-        <div className="p-6 bg-muted/30 border-t border-border flex gap-3 justify-end">
+        <div className="p-3 sm:p-4 lg:p-6 bg-muted/30 border-t border-border flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end">
           <button
             onClick={handleDownload}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors border border-primary/20 hover:border-primary/40"
+            className="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-primary hover:bg-primary/10 rounded-md sm:rounded-lg transition-colors border border-primary/20 hover:border-primary/40"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Download PDF
+            <span className="hidden sm:inline">Download PDF</span>
+            <span className="sm:hidden">Download</span>
           </button>
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary rounded-lg transition-colors border border-border hover:border-primary/40"
+            className="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-secondary-foreground hover:bg-secondary rounded-md sm:rounded-lg transition-colors border border-border hover:border-primary/40"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
             Print

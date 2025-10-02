@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, memo } from 'react'
 import { Download, Printer, FileText, Eye } from 'lucide-react'
 import { InvoiceData } from '@/types/components'
 import { InvoiceService } from '@/services/invoice.service'
@@ -17,7 +17,7 @@ interface InvoiceButtonsProps {
   buttonClassName?: string
 }
 
-export default function InvoiceButtons({
+const InvoiceButtons = memo(function InvoiceButtons({
   invoiceData,
   variant = 'default',
   showViewButton = true,
@@ -120,7 +120,9 @@ export default function InvoiceButtons({
       />
     </>
   )
-}
+})
+
+export default InvoiceButtons
 
 // Individual button components for more granular control
 export function ViewInvoiceButton({
