@@ -47,6 +47,27 @@ class FileUploadService {
   }
 
   /**
+   * Upload gem image with WebP conversion
+   */
+  async uploadGemImage(file: File): Promise<ApiResponse<FileUploadResponse>> {
+    return this.uploadFile(file, 'gems/images')
+  }
+
+  /**
+   * Upload gem video
+   */
+  async uploadGemVideo(file: File): Promise<ApiResponse<FileUploadResponse>> {
+    return this.uploadFile(file, 'gems/videos')
+  }
+
+  /**
+   * Upload gem lab report
+   */
+  async uploadGemLabReport(file: File): Promise<ApiResponse<FileUploadResponse>> {
+    return this.uploadFile(file, 'gems/lab-reports')
+  }
+
+  /**
    * Delete a file from S3
    */
   async deleteFile(url: string): Promise<ApiResponse<{ success: boolean }>> {

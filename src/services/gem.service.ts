@@ -1,5 +1,5 @@
 import apiClient from '@/lib/api-client';
-import { apiConfig } from '@/config/environment';
+import { apiConfig, environment } from '@/config/environment';
 import {
   // Core gem types
   EnhancedGem,
@@ -29,7 +29,6 @@ import {
   S3UploadResponse
 } from '@/types';
 import { ServiceUtils, handleServiceResponse, withPerformanceMonitoring } from './service-utils';
-import { environment } from '@/config/environment'
 
 /**
  * Production-optimized Gem Service
@@ -353,6 +352,131 @@ class GemService {
       }
       
       throw new Error('Unknown error occurred during S3 upload');
+    }
+  }
+
+  /**
+   * Upload file directly through server with WebP conversion for images
+   * This method uploads through /api/upload which performs server-side processing
+   * Includes production-ready error handling and retry logic
+   */
+  async uploadGemFile(
+    file: File,
+    mediaType: 'image' | 'video' | 'lab-report',
+    onProgress?: (progress: number) => void,
+    retryCount: number = 0
+  ): Promise<{ s3Key: string; url: string; size: number; mimeType: string }> {
+    const maxRetries = 3;
+    const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Determine folder based on media type
+      const folder = mediaType === 'image' ? 'gems/images' : 
+                     mediaType === 'video' ? 'gems/videos' : 'gems/lab-reports';
+      formData.append('folder', folder);
+
+      const token = this.getAuthToken();
+      
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        // Track upload progress
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable && onProgress) {
+            // Show 80% for upload progress, reserve 20% for server processing (WebP conversion)
+            const uploadProgress = Math.round((e.loaded * 80) / e.total);
+            onProgress(uploadProgress);
+          }
+        });
+        
+        // When upload completes, show processing state
+        xhr.upload.addEventListener('loadend', () => {
+          if (onProgress) {
+            // Upload complete, now processing on server
+            onProgress(85);
+          }
+        });
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              // Server processing complete, show final progress
+              if (onProgress) {
+                onProgress(100);
+              }
+              
+              const response = JSON.parse(xhr.responseText);
+              if (response.success && response.data) {
+                resolve({
+                  s3Key: response.data.s3Key || response.data.key || response.data.url,
+                  url: response.data.fullUrl || response.data.url,
+                  size: response.data.size || file.size,
+                  mimeType: response.data.type || file.type
+                });
+              } else {
+                reject(new Error(response.message || 'Upload failed'));
+              }
+            } catch {
+              reject(new Error('Invalid response from server'));
+            }
+          } else if (xhr.status === 408 && retryCount < maxRetries) {
+            // Retry on timeout
+            setTimeout(() => {
+              this.uploadGemFile(file, mediaType, onProgress, retryCount + 1)
+                .then(resolve)
+                .catch(reject);
+            }, retryDelay);
+          } else if (xhr.status === 503 && retryCount < maxRetries) {
+            // Retry on service unavailable
+            setTimeout(() => {
+              this.uploadGemFile(file, mediaType, onProgress, retryCount + 1)
+                .then(resolve)
+                .catch(reject);
+            }, retryDelay);
+          } else {
+            reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
+          }
+        });
+
+        xhr.addEventListener('error', () => {
+          if (retryCount < maxRetries) {
+            // Retry on network error
+            setTimeout(() => {
+              this.uploadGemFile(file, mediaType, onProgress, retryCount + 1)
+                .then(resolve)
+                .catch(reject);
+            }, retryDelay);
+          } else {
+            reject(new Error('Network error during upload'));
+          }
+        });
+
+        xhr.addEventListener('timeout', () => {
+          if (retryCount < maxRetries) {
+            // Retry on timeout
+            setTimeout(() => {
+              this.uploadGemFile(file, mediaType, onProgress, retryCount + 1)
+                .then(resolve)
+                .catch(reject);
+            }, retryDelay);
+          } else {
+            reject(new Error('Upload timeout'));
+          }
+        });
+
+        xhr.open('POST', `${apiConfig.baseUrl}/upload`);
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        xhr.timeout = 5 * 60 * 1000; // 5 minutes timeout
+        xhr.send(formData);
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`File upload failed: ${error.message}`);
+      }
+      throw new Error('Unknown error occurred during file upload');
     }
   }
 

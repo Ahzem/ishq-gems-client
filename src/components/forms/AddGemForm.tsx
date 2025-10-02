@@ -939,35 +939,20 @@ export default function AddGemForm({
         }
       }
 
-      // Step 3: Get pre-signed URLs for file uploads
-      const uploadRequest = filesToUpload.map(f => ({
-        fileName: f.fileName,
-        fileType: f.fileType,
-        fileSize: f.fileSize,
-        mediaType: f.mediaType,
-        gemId: f.gemId
-      }))
-      
-      console.log('Upload request data:', uploadRequest)
-      
-      const uploadUrlsResponse = await gemService.generateUploadUrls(uploadRequest)
+      // Step 3: Upload files directly through server with WebP conversion (no presigned URLs needed)
+      console.log('Uploading', filesToUpload.length, 'files directly with WebP conversion...')
 
-      if (!uploadUrlsResponse.success) {
-        // Surface server-provided error message for easier debugging
-        throw new Error(uploadUrlsResponse.message || 'Failed to generate upload URLs')
-      }
-
-      // Step 4: Upload files to S3
+      // Step 4: Upload files directly through server with WebP conversion
       const uploadPromises = filesToUpload.map(async (fileData, index) => {
-        const uploadInfo = uploadUrlsResponse.data[index]
         const progressKey = `${fileData.mediaType}-${fileData.fileName}`
         
         // Set initial progress
         setUploadProgress(prev => ({ ...prev, [progressKey]: 0 }))
         
-        await gemService.uploadToS3(
+        // Use new direct upload method with WebP conversion
+        const uploadResult = await gemService.uploadGemFile(
           fileData.file, 
-          uploadInfo.uploadUrl,
+          fileData.mediaType,
           (progress) => {
             setUploadProgress(prev => ({ ...prev, [progressKey]: progress }))
           }
@@ -981,11 +966,11 @@ export default function AddGemForm({
         })
         
         return {
-          s3Key: uploadInfo.s3Key,
+          s3Key: uploadResult.s3Key,
           type: fileData.mediaType,
           filename: fileData.fileName,
-          fileSize: fileData.fileSize,
-          mimeType: fileData.fileType,
+          fileSize: uploadResult.size,
+          mimeType: uploadResult.mimeType, // Will be 'image/webp' for images
           isPrimary: fileData.mediaType === 'image' && index === 0, // First image is primary
           order: index
         }
@@ -993,8 +978,15 @@ export default function AddGemForm({
 
       // Show upload progress indicator
       setIsUploading(true)
+      setIsSubmitting(true) // Keep submitting state to show loading
+      showToast('📤 Uploading and optimizing images...', 'info', 3000)
+      
       const uploadedFiles = await Promise.all(uploadPromises)
       setIsUploading(false)
+      
+      // Show processing message
+      console.log('Files uploaded successfully, now creating gem listing...')
+      showToast('✅ Images uploaded! Creating gem listing...', 'success', 2000)
 
       // Add stored lab report to uploaded files if it exists
       if (storedLabReport && storedLabReport.url && storedLabReport.s3Key) {

@@ -20,6 +20,14 @@ export default function UploadProgress({
 }: UploadProgressProps) {
   const clampedProgress = Math.min(Math.max(progress, 0), 100)
   const isComplete = clampedProgress >= 100
+  const isProcessing = clampedProgress >= 80 && clampedProgress < 100
+
+  // Determine display text based on progress
+  const getDisplayText = () => {
+    if (isComplete) return 'Upload Complete'
+    if (isProcessing) return 'Processing & Optimizing...'
+    return text
+  }
 
   return (
     <div className={cn(
@@ -35,6 +43,8 @@ export default function UploadProgress({
               'p-2 rounded-full transition-all duration-300',
               isComplete 
                 ? 'bg-green-500/20 text-green-400' 
+                : isProcessing
+                ? 'bg-blue-500/20 text-blue-400'
                 : 'bg-primary/20 text-primary'
             )}>
               {isComplete ? (
@@ -50,7 +60,9 @@ export default function UploadProgress({
             <div className={cn(
               'absolute inset-0 rounded-full blur-md transition-opacity duration-300',
               isComplete 
-                ? 'bg-green-400/30 opacity-60' 
+                ? 'bg-green-400/30 opacity-60'
+                : isProcessing
+                ? 'bg-blue-400/30 opacity-60'
                 : 'bg-primary/30 opacity-40'
             )} />
           </div>
@@ -58,7 +70,7 @@ export default function UploadProgress({
         
         <div className="flex-1 min-w-0">
           <h3 className="font-medium text-foreground">
-            {isComplete ? 'Upload Complete' : text}
+            {getDisplayText()}
           </h3>
           {fileName && (
             <p className="text-sm text-muted-foreground truncate">
@@ -70,7 +82,7 @@ export default function UploadProgress({
         <div className="text-right">
           <span className={cn(
             'text-lg font-bold',
-            isComplete ? 'text-green-400' : 'text-primary'
+            isComplete ? 'text-green-400' : isProcessing ? 'text-blue-400' : 'text-primary'
           )}>
             {clampedProgress}%
           </span>
@@ -120,11 +132,15 @@ export default function UploadProgress({
         <p className={cn(
           'text-sm transition-colors duration-300',
           isComplete 
-            ? 'text-green-400 font-medium' 
+            ? 'text-green-400 font-medium'
+            : isProcessing
+            ? 'text-blue-400 font-medium'
             : 'text-muted-foreground'
         )}>
           {isComplete 
             ? '✨ Upload successful! Your gem is being processed.' 
+            : isProcessing
+            ? '🔄 Converting to WebP & generating thumbnails...'
             : 'Please wait while we upload your gem images...'
           }
         </p>
