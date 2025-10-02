@@ -373,7 +373,13 @@ export default function BidHistory({
           {showPrivateInfo && (
             <div className="flex items-center gap-1 text-xs text-amber-600 bg-amber-100 dark:bg-amber-900/20 px-2 py-1 rounded-full">
               <Shield className="w-3 h-3" />
-              <span>Admin View - {gemId}</span>
+              <span>
+                {user?.role === 'admin' ? 'Admin View' : 'Seller View'}
+                {/* Only show gem ID in development or for admins */}
+                {(process.env.NODE_ENV === 'development' || user?.role === 'admin') && (
+                  <span className="ml-1 opacity-75">- {gemId}</span>
+                )}
+              </span>
             </div>
           )}
           

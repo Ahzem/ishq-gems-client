@@ -5,6 +5,7 @@ import { DollarSign, Gavel, AlertCircle, Lock, ArrowRight, TrendingUp } from 'lu
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 import Toast from '@/components/alerts/Toast'
+import BidErrorDisplay, { parseBidError, BidError } from './BidErrorDisplay'
 import { BidData } from '@/types/entities/bid'
 
 export interface PlaceBidFormProps {
@@ -47,6 +48,7 @@ export default function PlaceBidForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [bidError, setBidError] = useState<BidError | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
   const [isAuctionEnded, setIsAuctionEnded] = useState(false)
 
@@ -86,12 +88,30 @@ export default function PlaceBidForm({
     if (isNaN(bidAmount) || bidAmount <= 0) {
       return 'Please enter a valid bid amount'
     }
-    if (bidAmount < minimumBid) {
-      return `Bid must be at least $${minimumBid.toLocaleString()}`
+    
+    // Calculate minimum required bid
+    let minimumRequired = minimumBid
+    
+    // If no existing bids, check against starting bid and reserve price
+    if (currentHighestBid === 0) {
+      const startingBidRequired = minimumBid
+      const reservePriceRequired = reservePrice || 0
+      minimumRequired = Math.max(startingBidRequired, reservePriceRequired)
+      
+      if (bidAmount < minimumRequired) {
+        if (reservePriceRequired > startingBidRequired) {
+          return `Bid must meet the reserve price of $${reservePriceRequired.toLocaleString()}`
+        } else {
+          return `Bid must meet the starting bid of $${startingBidRequired.toLocaleString()}`
+        }
+      }
+    } else {
+      // There are existing bids - must beat current highest
+      if (bidAmount <= currentHighestBid) {
+        return `Bid must be higher than current bid of $${currentHighestBid.toLocaleString()}`
+      }
     }
-    if (bidAmount <= currentHighestBid) {
-      return `Bid must be higher than current bid of $${currentHighestBid.toLocaleString()}`
-    }
+    
     return null
   }
 
@@ -102,6 +122,10 @@ export default function PlaceBidForm({
     if (field === 'amount' && typeof value === 'string') {
       const error = validateBid(value)
       setErrors(prev => ({ ...prev, amount: error || '' }))
+      // Clear bid error when user starts typing
+      if (bidError) {
+        setBidError(null)
+      }
     }
   }
 
@@ -109,10 +133,21 @@ export default function PlaceBidForm({
     let amount: number
     switch (type) {
       case 'minimum':
-        amount = minimumBid
+        // For first bid, use the higher of starting bid or reserve price
+        if (currentHighestBid === 0) {
+          amount = Math.max(minimumBid, reservePrice || 0)
+        } else {
+          amount = minimumBid
+        }
         break
       case 'increment':
-        amount = currentHighestBid + Math.max(100, Math.floor(currentHighestBid * 0.05)) // 5% or $100 minimum
+        if (currentHighestBid === 0) {
+          // For first bid, ensure we meet reserve price
+          const baseAmount = Math.max(minimumBid, reservePrice || 0)
+          amount = baseAmount + Math.max(100, Math.floor(baseAmount * 0.05))
+        } else {
+          amount = currentHighestBid + Math.max(100, Math.floor(currentHighestBid * 0.05)) // 5% or $100 minimum
+        }
         break
       case 'reserve':
         amount = reservePrice || minimumBid
@@ -123,6 +158,7 @@ export default function PlaceBidForm({
     
     setFormData(prev => ({ ...prev, amount: amount.toString() }))
     setErrors(prev => ({ ...prev, amount: '' }))
+    setBidError(null) // Clear any existing bid errors
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,6 +180,9 @@ export default function PlaceBidForm({
 
   const confirmBid = async () => {
     setIsSubmitting(true)
+    setErrors({}) // Clear any existing errors
+    setBidError(null) // Clear any existing bid errors
+    
     try {
       // Import bid service dynamically to avoid SSR issues
       const { default: bidService } = await import('@/services/bid.service')
@@ -170,14 +209,34 @@ export default function PlaceBidForm({
         }
         onBidUpdate?.()
       } else {
-        setToast({ message: response.message || 'Failed to place bid', type: 'error' })
+        // Parse server error using the new error handling system
+        const parsedError = parseBidError(response.message || 'Failed to place bid')
+        setBidError(parsedError)
+        
+        // Also set inline field errors for validation errors
+        if (parsedError.type === 'validation' && parsedError.field) {
+          setErrors({ [parsedError.field]: parsedError.message })
+        }
+        
+        // Show toast for non-validation errors
+        if (parsedError.type !== 'validation') {
+          setToast({ message: parsedError.message, type: 'error' })
+        }
+        
+        // Handle auction status changes
+        if (parsedError.type === 'auction' && parsedError.message.includes('ended')) {
+          setIsAuctionEnded(true)
+        }
       }
     } catch (error) {
       console.error('Error placing bid:', error)
-      setToast({ 
-        message: error instanceof Error ? error.message : 'Failed to place bid', 
-        type: 'error' 
-      })
+      
+      // Parse the error using the new error handling system
+      const parsedError = parseBidError(error)
+      setBidError(parsedError)
+      
+      // Show toast for the error
+      setToast({ message: parsedError.message, type: 'error' })
     } finally {
       setIsSubmitting(false)
     }
@@ -253,15 +312,53 @@ export default function PlaceBidForm({
             </div>
           </div>
           
-          {reservePrice && currentHighestBid < reservePrice && (
-            <div className="mt-3 p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
-                <AlertCircle className="w-4 h-4" />
-                <span className="text-xs">Reserve price not yet met</span>
+          {/* Reserve Price Information */}
+          {reservePrice && (
+            <div className="mt-3 p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    Reserve Price: {formatCurrency(reservePrice)}
+                  </span>
+                </div>
+                <div className="text-xs text-amber-700 dark:text-amber-300">
+                  {currentHighestBid >= reservePrice ? (
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      Met
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                      Not Met
+                    </span>
+                  )}
+                </div>
               </div>
+              {currentHighestBid < reservePrice && (
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                  First bid must meet the reserve price of {formatCurrency(reservePrice)}
+                </p>
+              )}
             </div>
           )}
         </div>
+
+        {/* Error Display */}
+        {bidError && (
+          <div className="p-4">
+            <BidErrorDisplay
+              error={bidError}
+              onRetry={() => {
+                setBidError(null)
+                // Retry the bid placement
+                confirmBid()
+              }}
+              onDismiss={() => setBidError(null)}
+            />
+          </div>
+        )}
 
         {/* Bid Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -272,7 +369,10 @@ export default function PlaceBidForm({
               onClick={() => handleQuickBid('minimum')}
               className="px-3 py-2 text-xs bg-secondary/50 text-foreground rounded-lg hover:bg-secondary transition-colors"
             >
-              Min: {formatCurrency(minimumBid)}
+              {currentHighestBid === 0 && reservePrice && reservePrice > minimumBid 
+                ? `Min: ${formatCurrency(reservePrice)}`
+                : `Min: ${formatCurrency(minimumBid)}`
+              }
             </button>
             <button
               type="button"

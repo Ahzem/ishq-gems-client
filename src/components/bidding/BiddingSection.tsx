@@ -10,6 +10,7 @@ import PlaceBidForm from './PlaceBidForm'
 import BidHistory from './BidHistory'
 import AuctionTimer from './AuctionTimer'
 import BiddingNotifications from '../notifications/BiddingNotifications'
+import BiddingErrorBoundary from './BiddingErrorBoundary'
 import { cn } from '@/lib/utils'
 
 interface BidStats {
@@ -172,28 +173,34 @@ export default function BiddingSection({
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
-      {/* Error Display */}
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 rounded-2xl p-4">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600" />
-            <div>
-              <p className="font-medium text-red-800 dark:text-red-200">Error Loading Auction Data</p>
-              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-              <button
-                onClick={() => {
-                  setError(null)
-                  loadBiddingData()
-                }}
-                className="mt-2 px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
-              >
-                Retry
-              </button>
+    <BiddingErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('Bidding section error:', error, errorInfo)
+        setError(error.message)
+      }}
+    >
+      <div className={cn('space-y-6', className)}>
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+              <div>
+                <p className="font-medium text-red-800 dark:text-red-200">Error Loading Auction Data</p>
+                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                <button
+                  onClick={() => {
+                    setError(null)
+                    loadBiddingData()
+                  }}
+                  className="mt-2 px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Real-time Bid Notifications */}
       <BiddingNotifications
@@ -427,6 +434,7 @@ export default function BiddingSection({
           <p>• All bids are binding once the auction is finalized</p>
         </div>
       </div>
-    </div>
+      </div>
+    </BiddingErrorBoundary>
   )
 } 
