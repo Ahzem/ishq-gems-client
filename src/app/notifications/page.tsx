@@ -8,7 +8,15 @@ import {
   RefreshCw,
   ExternalLink,
   Search,
-  ArrowLeft
+  ArrowLeft,
+  Gavel,
+  ShoppingBag,
+  MessageCircle,
+  Gem,
+  Settings,
+  Store,
+  Shield,
+  X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import notificationService from '@/services/notification.service'
@@ -26,6 +34,22 @@ export default function NotificationsPage() {
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([])
   const [showBulkActions, setShowBulkActions] = useState(false)
   const router = useRouter()
+
+  // Icon mapping function
+  const getNotificationIcon = (iconName: string) => {
+    const iconMap = {
+      'gavel': Gavel,
+      'shopping-bag': ShoppingBag,
+      'message-circle': MessageCircle,
+      'gem': Gem,
+      'settings': Settings,
+      'store': Store,
+      'shield': Shield,
+      'bell': Bell
+    }
+    const IconComponent = iconMap[iconName as keyof typeof iconMap] || Bell
+    return <IconComponent className="h-5 w-5" />
+  }
 
   const fetchNotifications = useCallback(async (pageNum = 1) => {
     setIsLoading(true)
@@ -205,110 +229,158 @@ export default function NotificationsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.back()}
-                className="p-2 hover:bg-secondary rounded-full transition-colors"
-                aria-label="Go back"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-              <div className="flex items-center gap-3">
-                <Bell className="h-6 w-6 text-primary" />
-                <h1 className="text-2xl font-bold">Notifications</h1>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
+      {/* Enhanced Header */}
+      <div className="bg-card/80 backdrop-blur-xl border-b border-border/30 sticky top-0 z-10">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 lg:py-6">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            {/* Top Row - Title and Back Button */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button
+                  onClick={() => router.back()}
+                  className="p-1.5 sm:p-2 hover:bg-secondary/50 rounded-xl transition-all duration-200 border border-border/30 hover:border-primary/30"
+                  title="Go Back"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground hover:text-primary transition-colors" />
+                </button>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="relative">
+                    <div className="p-1.5 sm:p-2 lg:p-3 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl">
+                      <Bell className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-primary" />
+                    </div>
+                    {unreadCount > 0 && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded-full flex items-center justify-center">
+                        <span className="text-xs font-bold text-white">{unreadCount}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-serif font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                      Notifications
+                    </h1>
+                    <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
+                      Stay updated with your activity
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button 
+                  onClick={handleRefresh}
+                  disabled={isLoading}
+                  className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 bg-secondary/50 hover:bg-secondary rounded-xl transition-all duration-200 border border-border/30 hover:border-primary/30"
+                  title="Refresh notifications"
+                >
+                  <RefreshCw className={`w-4 h-4 text-muted-foreground ${isLoading ? 'animate-spin' : ''}`} />
+                  <span className="text-sm font-medium text-muted-foreground hidden sm:inline lg:hidden xl:inline">Refresh</span>
+                </button>
+
                 {unreadCount > 0 && (
-                  <span className="px-3 py-1 bg-red-500 text-white text-sm rounded-full">
-                    {unreadCount} unread
-                  </span>
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    className="px-3 sm:px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 font-medium shadow-lg shadow-primary/20 text-sm"
+                  >
+                    Mark All Read
+                  </button>
                 )}
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleRefresh}
-                className="p-2 hover:bg-secondary rounded-full transition-colors"
-                title="Refresh"
-              >
-                <RefreshCw className={cn('h-5 w-5', isLoading && 'animate-spin')} />
-              </button>
-              
-              {unreadCount > 0 && (
+            {/* Search and Filter Row */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              {/* Search Input - Desktop */}
+              <div className="relative flex-1 hidden md:block">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search notifications..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-10 py-2.5 bg-secondary/30 border border-border/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-200 text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-secondary/50 rounded-lg transition-colors"
+                  >
+                    <X className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={handleMarkAllAsRead}
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                  onClick={() => setFilter('all')}
+                  className={cn(
+                    'px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+                    filter === 'all'
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary border border-border/30'
+                  )}
                 >
-                  Mark All Read
+                  All
                 </button>
-              )}
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="pb-4 space-y-4">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search notifications..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-secondary rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-
-            {/* Filter Tabs */}
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setFilter('all')}
-                className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  filter === 'all'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                )}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setFilter('unread')}
-                className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  filter === 'unread'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                )}
-              >
-                Unread ({unreadCount})
-              </button>
-              
-              {/* Type Filter */}
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="px-4 py-2 bg-secondary rounded-lg border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/50"
-              >
-                {notificationTypes.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+                <button
+                  onClick={() => setFilter('unread')}
+                  className={cn(
+                    'px-3 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+                    filter === 'unread'
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                      : 'bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary border border-border/30'
+                  )}
+                >
+                  Unread ({unreadCount})
+                </button>
+                
+                {/* Type Filter */}
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="px-3 sm:px-4 py-2 bg-secondary/50 rounded-xl border border-border/30 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-200"
+                >
+                  {notificationTypes.map(type => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Mobile Search Input */}
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-2 md:hidden">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search notifications..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-10 py-2.5 bg-card/80 backdrop-blur-sm border border-border/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-200 text-sm"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-secondary/50 rounded-lg transition-colors"
+            >
+              <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+            </button>
+          )}
+        </div>
+      </div>
+
+
       {/* Bulk Actions */}
       {showBulkActions && (
         <div className="sticky top-[120px] z-10 bg-primary/10 border-b border-primary/20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
             <div className="flex items-center justify-between py-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">
@@ -348,29 +420,34 @@ export default function NotificationsPage() {
       )}
 
       {/* Notifications List */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6">
         {filteredNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Bell className="h-24 w-24 text-muted-foreground/50 mb-6" />
-            <h2 className="text-2xl font-semibold text-foreground mb-4">
+            <div className="relative mb-6 sm:mb-8">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Bell className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 rounded-full blur-xl"></div>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground mb-3">
               {searchQuery ? 'No matching notifications' : 'No notifications yet'}
             </h2>
-            <p className="text-muted-foreground text-lg max-w-md">
+            <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-md">
               {searchQuery 
                 ? 'Try adjusting your search terms or filters'
-                : "We&apos;ll notify you when something happens with your gems, bids, or orders"
+                : "We'll notify you when something happens with your gems, bids, or orders"
               }
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {filteredNotifications.map((notification) => (
               <div
                 key={notification._id}
                 className={cn(
-                  'flex items-start gap-4 p-4 rounded-lg border transition-all duration-200',
-                  'hover:bg-secondary/30 cursor-pointer group',
-                  !notification.isRead && 'bg-primary/5 border-primary/20',
+                  'flex items-start gap-4 p-4 sm:p-6 rounded-xl border transition-all duration-200',
+                  'hover:bg-secondary/30 cursor-pointer group bg-card/80 backdrop-blur-sm',
+                  !notification.isRead && 'bg-primary/5 border-primary/20 shadow-lg shadow-primary/10',
                   selectedNotifications.includes(notification._id) && 'bg-primary/10 border-primary/30'
                 )}
               >
@@ -387,10 +464,10 @@ export default function NotificationsPage() {
 
                 {/* Icon */}
                 <div className={cn(
-                  'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-lg mt-1',
-                  !notification.isRead ? 'bg-primary/20' : 'bg-secondary'
+                  'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mt-1',
+                  !notification.isRead ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
                 )}>
-                  {notificationService.formatNotification(notification).icon}
+                  {getNotificationIcon(notificationService.formatNotification(notification).icon)}
                 </div>
 
                 {/* Content */}
@@ -401,22 +478,22 @@ export default function NotificationsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <h3 className={cn(
-                        'text-lg font-medium mb-1',
+                        'text-lg font-medium mb-2',
                         !notification.isRead ? 'text-foreground' : 'text-muted-foreground'
                       )}>
                         {notification.title}
                       </h3>
                       <p className={cn(
-                        'text-sm mb-3',
+                        'text-sm mb-3 line-clamp-2',
                         !notification.isRead ? 'text-foreground' : 'text-muted-foreground'
                       )}>
                         {notification.message}
                       </p>
                       
                       {/* Metadata */}
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className={cn(
-                          'px-2 py-1 rounded-full bg-secondary text-xs font-medium',
+                          'px-2 py-1 rounded-full text-xs font-medium',
                           notificationService.formatNotification(notification).color
                         )}>
                           {notification.type.replace('_', ' ')}
