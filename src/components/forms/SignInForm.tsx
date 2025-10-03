@@ -9,6 +9,7 @@ import { useLoader, useAlert } from '@/components/providers'
 import { useCaptcha } from '@/hooks'
 import type { LoginResult, SignInFormData } from '@/types'
 import TurnstileWidget from './TurnstileWidget'
+import GoogleSignInButton from './GoogleSignInButton'
 import { env } from '@/config/environment'
 
 export default function SignInForm() {
@@ -17,7 +18,6 @@ export default function SignInForm() {
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
 
   const { login, redirectUserByRole } = useAuth()
   const { showLoader, hideLoader } = useLoader()
@@ -28,7 +28,6 @@ export default function SignInForm() {
   const {
     captchaToken,
     isCaptchaLoading,
-    captchaError,
     captchaKey,
     verifyingDots,
     handleCaptchaVerify,
@@ -40,7 +39,6 @@ export default function SignInForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
 
     // Don't show error alert immediately, just return if CAPTCHA isn't ready
     if (!isCaptchaReady) {
@@ -129,12 +127,24 @@ export default function SignInForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
+      {/* Google Sign-In Button */}
+      <div className="mb-6">
+        <GoogleSignInButton buttonText="signin_with" />
+      </div>
+
+      {/* Divider */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-background text-muted-foreground">
+            Or continue with email
+          </span>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-        {error && (
-          <div className="p-3 sm:p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30">
-            <p className="text-xs sm:text-sm text-red-600 dark:text-red-400">{error}</p>
-          </div>
-        )}
 
         {/* Email Field */}
         <div className="space-y-1.5 sm:space-y-2">
@@ -208,9 +218,6 @@ export default function SignInForm() {
             theme="auto"
             size="invisible"
           />
-          {captchaError && (
-            <p className="text-xs sm:text-sm text-red-600 dark:text-red-400">{captchaError}</p>
-          )}
         </div>
 
         {/* Submit Button */}

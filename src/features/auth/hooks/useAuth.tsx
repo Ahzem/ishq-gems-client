@@ -51,6 +51,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   })
   const router = useRouter()
 
+  // Listen for auth state changes from Google Sign-In
+  useEffect(() => {
+    const handleAuthStateChanged = (event: CustomEvent) => {
+      const { user, token, isAuthenticated } = event.detail
+      
+      if (isAuthenticated && user && token) {
+        setAuthState({
+          user: {
+            id: user.id,
+            email: user.email,
+            fullName: user.fullName,
+            role: user.role,
+            isEmailVerified: user.isEmailVerified,
+            avatar: user.avatar
+          },
+          isAuthenticated: true,
+          isLoading: false,
+          token
+        })
+      }
+    }
+
+    window.addEventListener('auth-state-changed', handleAuthStateChanged as EventListener)
+    
+    return () => {
+      window.removeEventListener('auth-state-changed', handleAuthStateChanged as EventListener)
+    }
+  }, [])
+
   // Security: Clear any cached authentication on page refresh if tokens are invalid
   useEffect(() => {
     const clearAuthCache = () => {
