@@ -15,4 +15,15 @@
   --border: #e5e5e5;
   --input: #e5e5e5;
   --ring: #d4af37;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+  --info: #2563eb;
+  --info-foreground: #ffffff;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --radius: 0.5rem;
 } 

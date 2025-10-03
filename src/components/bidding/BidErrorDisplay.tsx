@@ -229,7 +229,7 @@ export function parseBidError(error: unknown): BidError {
 
   // Handle API response errors
   if (typeof error === 'object' && error !== null) {
-    const errorObj = error as any
+    const errorObj = error as { response?: { data?: { message?: string } }; message?: string }
     
     if (errorObj.response?.data?.message) {
       return parseBidError(errorObj.response.data.message)

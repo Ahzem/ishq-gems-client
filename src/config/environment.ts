@@ -39,6 +39,9 @@ interface ExternalServicesConfig {
     readonly uploadPreset: string;
     readonly apiKey: string;
   };
+  readonly google: {
+    readonly clientId: string;
+  };
 }
 
 // Environment detection with proper fallbacks
@@ -139,6 +142,9 @@ export const externalServices: ExternalServicesConfig = {
     uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '',
     apiKey: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || '',
   },
+  google: {
+    clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+  },
 } as const;
 
 // URL Builder utilities
@@ -181,6 +187,9 @@ export const env = {
   CLOUDINARY_CLOUD_NAME: externalServices.cloudinary.cloudName,
   CLOUDINARY_UPLOAD_PRESET: externalServices.cloudinary.uploadPreset,
   CLOUDINARY_API_KEY: externalServices.cloudinary.apiKey,
+  
+  // Google OAuth
+  GOOGLE_CLIENT_ID: externalServices.google.clientId,
 } as const;
 
 // Debug helper (only in development)

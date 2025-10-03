@@ -9,6 +9,7 @@ import { useLoader, useAlert } from '@/components/providers'
 import { useCaptcha } from '@/hooks'
 import type { SignupResult, SignUpFormData } from '@/types'
 import TurnstileWidget from './TurnstileWidget'
+import GoogleSignInButton from './GoogleSignInButton'
 import { env } from '@/config/environment'
 
 export default function SignUpForm() {
@@ -22,7 +23,6 @@ export default function SignUpForm() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [error, setError] = useState('')
 
   const { signup } = useAuth()
   const { showLoader, hideLoader } = useLoader()
@@ -33,7 +33,6 @@ export default function SignUpForm() {
   const {
     captchaToken,
     isCaptchaLoading,
-    captchaError,
     captchaKey,
     verifyingDots,
     handleCaptchaVerify,
@@ -45,7 +44,6 @@ export default function SignUpForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
     
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -145,12 +143,24 @@ export default function SignUpForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-        {error && (
-          <div className="p-3 sm:p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30">
-            <p className="text-xs sm:text-sm text-red-600 dark:text-red-400">{error}</p>
-          </div>
-        )}
+      {/* Google Sign-Up Button */}
+      <div className="mb-6">
+        <GoogleSignInButton buttonText="signup_with" />
+      </div>
+
+      {/* Divider */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-background text-muted-foreground">
+            Or sign up with email
+          </span>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
 
         {/* Full Name Field */}
         <div className="space-y-1.5 sm:space-y-2">
@@ -300,9 +310,6 @@ export default function SignUpForm() {
             theme="auto"
             size="invisible"
           />
-          {captchaError && (
-            <p className="text-xs sm:text-sm text-red-600 dark:text-red-400">{captchaError}</p>
-          )}
         </div>
 
         {/* Submit Button */}
