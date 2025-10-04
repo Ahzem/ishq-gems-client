@@ -3,13 +3,19 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Eye } from 'lucide-react'
 import { ViewsChartData } from '@/types/components/chart.types'
+import { ViewsChartSkeleton } from '@/components/loading'
 
 interface ViewsChartProps {
   data: ViewsChartData[]
   className?: string
+  loading?: boolean
 }
 
-export default function ViewsChart({ data, className = '' }: ViewsChartProps) {
+export default function ViewsChart({ data, className = '', loading = false }: ViewsChartProps) {
+  if (loading) {
+    return <ViewsChartSkeleton className={className} />
+  }
+
   return (
     <div className={`bg-card border border-border/30 rounded-xl p-6 ${className}`}>
       <div className="flex items-center justify-between mb-6">

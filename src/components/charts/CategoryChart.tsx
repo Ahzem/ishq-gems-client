@@ -3,10 +3,12 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
 import { Gem } from 'lucide-react'
 import { CategoryChartData } from '@/types/components/chart.types'
+import { CategoryChartSkeleton } from '@/components/loading'
 
 interface CategoryChartProps {
   data: CategoryChartData[]
   className?: string
+  loading?: boolean
 }
 
 interface PieChartLabel {
@@ -16,7 +18,11 @@ interface PieChartLabel {
 }
 
 
-export default function CategoryChart({ data, className = '' }: CategoryChartProps) {
+export default function CategoryChart({ data, className = '', loading = false }: CategoryChartProps) {
+  if (loading) {
+    return <CategoryChartSkeleton className={className} />
+  }
+
   return (
     <div className={`bg-card border border-border/30 rounded-xl p-6 ${className}`}>
       <div className="flex items-center justify-between mb-6">

@@ -3,13 +3,19 @@
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import { TrendingUp } from 'lucide-react'
 import { SalesChartData } from '@/types/components/chart.types'
+import { SalesChartSkeleton } from '@/components/loading'
 
 interface SalesChartProps {
   data: SalesChartData[]
   className?: string
+  loading?: boolean
 }
 
-export default function SalesChart({ data, className = '' }: SalesChartProps) {
+export default function SalesChart({ data, className = '', loading = false }: SalesChartProps) {
+  if (loading) {
+    return <SalesChartSkeleton className={className} />
+  }
+
   return (
     <div className={`bg-card border border-border/30 rounded-xl p-6 ${className}`}>
       <div className="flex items-center justify-between mb-6">

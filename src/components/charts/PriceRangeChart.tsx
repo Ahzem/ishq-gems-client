@@ -3,13 +3,19 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { DollarSign } from 'lucide-react'
 import { PriceRangeChartData } from '@/types/components/chart.types'
+import { PriceRangeChartSkeleton } from '@/components/loading'
 
 interface PriceRangeChartProps {
   data: PriceRangeChartData[]
   className?: string
+  loading?: boolean
 }
 
-export default function PriceRangeChart({ data, className = '' }: PriceRangeChartProps) {
+export default function PriceRangeChart({ data, className = '', loading = false }: PriceRangeChartProps) {
+  if (loading) {
+    return <PriceRangeChartSkeleton className={className} />
+  }
+
   return (
     <div className={`bg-card border border-border/30 rounded-xl p-6 ${className}`}>
       <div className="flex items-center justify-between mb-6">
