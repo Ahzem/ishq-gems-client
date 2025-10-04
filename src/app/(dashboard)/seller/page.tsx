@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/features/auth/hooks/useAuth'
-import { Package, TrendingUp, DollarSign, Eye, Store, Star, Gavel, Loader2, Calendar, Target, Award } from 'lucide-react'
+import { Package, TrendingUp, DollarSign, Eye, Store, Star, Gavel, Calendar, Target, Award } from 'lucide-react'
 import Link from 'next/link'
 import PageTitle from '@/components/dashboard/PageTitle'
 import gemService from '@/services/gem.service'

@@ -95,7 +95,10 @@ const DEFAULT_SETTINGS: PlatformSettings = {
     enableSellerRatings: true,
     minSellerRating: 3.0,
     enableSellerBadges: true,
-    sellerOnboardingRequired: true
+    sellerOnboardingRequired: true,
+    calendlyMeetingLink: 'https://calendly.com/gemsishq/30min',
+    meetingDuration: 30,
+    meetingInstructions: 'Please prepare your gemstone samples and certificates for the meeting. We will discuss your experience, verify your documentation, and answer any questions you may have about selling on Ishq Gems.'
   },
   buyer: {
     guestCheckoutEnabled: true,

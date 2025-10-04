@@ -49,5 +49,6 @@ export type {
   SellerServiceConfig,
   SellerServiceState,
   SellerApplicationStatusResponse,
-  SellerSetupTokenResponse
+  SellerSetupTokenResponse,
+  SellerSetupAccountResponse
 } from './seller'

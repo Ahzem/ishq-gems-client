@@ -84,6 +84,9 @@ export interface SellerSettings {
   minSellerRating: number
   enableSellerBadges: boolean
   sellerOnboardingRequired: boolean
+  calendlyMeetingLink: string
+  meetingDuration: number
+  meetingInstructions: string
 }
 
 export interface BuyerSettings {

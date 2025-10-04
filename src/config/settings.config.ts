@@ -708,6 +708,35 @@ export const SETTINGS_TABS: SettingsTabConfig[] = [
         description: 'New sellers must complete onboarding process',
         group: 'onboarding',
         order: 12
+      },
+      {
+        key: 'calendlyMeetingLink',
+        label: 'Calendly Meeting Link',
+        type: 'url',
+        required: true,
+        placeholder: 'https://calendly.com/gemsishq/30min',
+        description: 'Calendly link for seller verification meetings',
+        group: 'verification',
+        order: 13
+      },
+      {
+        key: 'meetingDuration',
+        label: 'Meeting Duration (minutes)',
+        type: 'number',
+        required: true,
+        validation: { min: 15, max: 120 },
+        description: 'Duration of verification meetings in minutes',
+        group: 'verification',
+        order: 14
+      },
+      {
+        key: 'meetingInstructions',
+        label: 'Meeting Instructions',
+        type: 'textarea',
+        placeholder: 'Please prepare your gemstone samples and certificates for the meeting...',
+        description: 'Instructions to send to applicants before the meeting',
+        group: 'verification',
+        order: 15
       }
     ]
   }

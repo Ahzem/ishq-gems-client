@@ -268,4 +268,18 @@ export interface SellerSetupTokenResponse {
   fullName: string
   email: string
   expiresAt: string
+}
+
+/**
+ * Seller setup account response
+ */
+export interface SellerSetupAccountResponse {
+  userId: string
+  email: string
+  fullName: string
+  role: string
+  accountCreated: boolean
+  accountType: 'upgraded' | 'new'
+  redirectUrl?: string
+  loginUrl: string
 } 

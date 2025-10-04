@@ -26,6 +26,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth'
 import S3Image from '@/components/common/S3Image'
 import PageTitle from '@/components/dashboard/PageTitle'
 import adminService from '@/services/admin.service'
+import settingsService from '@/services/settings.service'
 import type { AdminSellerApplication } from '@/types'
 
 const statusConfig = {
@@ -56,6 +57,9 @@ export default function SellerDetailPage() {
   const [error, setError] = useState<string>('')
   const [actionLoading, setActionLoading] = useState<string>('')
   const [successMessage, setSuccessMessage] = useState<string>('')
+  const [meetingLink, setMeetingLink] = useState<string>('')
+  const [meetingDuration, setMeetingDuration] = useState<number>(30)
+  const [meetingInstructions, setMeetingInstructions] = useState<string>('')
   
   // Alert and confirmation states
   const [showAlert, setShowAlert] = useState(false)
@@ -71,6 +75,7 @@ export default function SellerDetailPage() {
   useEffect(() => {
     if (sellerId && isAuthenticated) {
       fetchApplication()
+      loadMeetingSettings()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sellerId, isAuthenticated])
@@ -79,6 +84,21 @@ export default function SellerDetailPage() {
     setAlertType(type)
     setAlertMessage(message)
     setShowAlert(true)
+  }
+
+  const loadMeetingSettings = async () => {
+    try {
+      const settings = await settingsService.getSettings()
+      setMeetingLink(settings.seller.calendlyMeetingLink)
+      setMeetingDuration(settings.seller.meetingDuration)
+      setMeetingInstructions(settings.seller.meetingInstructions)
+    } catch (error) {
+      console.error('Failed to load meeting settings:', error)
+      // Use default values if settings fail to load
+      setMeetingLink('https://calendly.com/gemsishq/30min')
+      setMeetingDuration(30)
+      setMeetingInstructions('Please prepare your gemstone samples and certificates for the meeting.')
+    }
   }
 
   const fetchApplication = async () => {
@@ -112,14 +132,18 @@ export default function SellerDetailPage() {
       setShowSendMeetConfirm(false)
       setActionLoading('meeting')
       
-      const response = await adminService.sendMeetLink(sellerId)
+      const response = await adminService.sendMeetLink(sellerId, {
+        meetingLink,
+        meetingDuration,
+        meetingInstructions
+      })
       
       if (!response.success) {
         throw new Error(response.message || 'Failed to send meet link')
       }
       
-      showAlertMessage('success', 'Google Meet link sent successfully!')
-      setSuccessMessage('Google Meet link sent successfully!')
+      showAlertMessage('success', 'Calendly meeting link sent successfully!')
+      setSuccessMessage('Calendly meeting link sent successfully!')
       setTimeout(() => setSuccessMessage(''), 5000)
     } catch (error) {
       console.error('Error sending meet link:', error)
@@ -370,7 +394,7 @@ export default function SellerDetailPage() {
         </div>
 
         {/* Success/Error Messages */}
-        {successMessage && (
+        {/* {successMessage && (
           <AlertBox
             type="success"
             message={successMessage}
@@ -384,7 +408,7 @@ export default function SellerDetailPage() {
             message={error}
             onClose={() => setError('')}
           />
-        )}
+        )} */}
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Content */}
@@ -580,7 +604,7 @@ export default function SellerDetailPage() {
                     ) : (
                       <Send className="w-4 h-4" />
                     )}
-                    Send Google Meet Link
+                    Send Calendly Meeting Link
                   </button>
                   
                   {!application.videoCallVerified && (
@@ -671,8 +695,8 @@ export default function SellerDetailPage() {
         {/* Confirmation Dialogs */}
         <ConfirmDialog
           isOpen={showSendMeetConfirm}
-          title="Send Google Meet Link"
-          message="This will send a Google Meet link to the seller's email address for the video call verification. Are you sure you want to proceed?"
+          title="Send Calendly Meeting Link"
+          message={`This will send a Calendly meeting link to ${application?.fullName}'s email address for the video call verification. The meeting will be ${meetingDuration} minutes long. Are you sure you want to proceed?`}
           confirmText="Yes, Send Link"
           cancelText="Cancel"
           type="info"

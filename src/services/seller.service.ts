@@ -15,6 +15,7 @@ import {
   FollowersResponse,
   SellerApplicationStatusResponse,
   SellerSetupTokenResponse,
+  SellerSetupAccountResponse,
   // Request types
   CreateReviewRequest,
   // Service configuration
@@ -778,7 +779,7 @@ class SellerService {
     token: string
     password: string
     confirmPassword: string
-  }): Promise<ApiResponse<{ message: string }>> {
+  }): Promise<ApiResponse<SellerSetupAccountResponse>> {
     return withPerformanceMonitoring(
       async () => {
         try {
@@ -826,7 +827,7 @@ class SellerService {
           }
 
           const response = await handleServiceResponse(
-            () => apiClient.post<{ message: string }>(`${this.config.baseUrl}/setup`, {
+            () => apiClient.post<SellerSetupAccountResponse>(`${this.config.baseUrl}/setup`, {
               token: setupData.token.trim(),
               password: setupData.password,
               confirmPassword: setupData.confirmPassword

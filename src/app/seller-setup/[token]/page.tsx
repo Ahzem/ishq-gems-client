@@ -138,10 +138,17 @@ export default function SellerSetupPage() {
       
       setIsSuccess(true)
       
-      // Redirect to login page after 3 seconds
+      // Check if API returned a redirect URL for store setup
+      const redirectUrl = response.data?.redirectUrl
+      
+      // Redirect to store setup page or login after 2 seconds
       setTimeout(() => {
-        router.push('/signin?message=Account created successfully. Please sign in.')
-      }, 3000)
+        if (redirectUrl) {
+          router.push(redirectUrl)
+        } else {
+          router.push('/signin?message=Account created successfully. Please sign in.')
+        }
+      }, 2000)
       
     } catch (error) {
       console.error('Setup account error:', error)
@@ -221,10 +228,10 @@ export default function SellerSetupPage() {
               Account Created Successfully!
             </h1>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Your seller account has been set up. You can now sign in and start selling on Ishq Gems.
+              Your seller account has been set up. Next, you&apos;ll set up your store profile and complete your seller onboarding.
             </p>
             <p className="text-sm text-muted-foreground">
-              Redirecting to sign in page in a few seconds...
+              Redirecting to store setup page...
             </p>
           </div>
         </div>

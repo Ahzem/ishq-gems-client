@@ -119,6 +119,7 @@ export type {
   SellerServiceState,
   SellerApplicationStatusResponse,
   SellerSetupTokenResponse,
+  SellerSetupAccountResponse,
   GemData,
   CartItem,
   WishlistItem,

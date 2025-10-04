@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback, useRef } from 'react'
+import { useEffect, useCallback, useRef, useState } from 'react'
 import { env } from '@/config/environment'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 import { useLoader, useAlert } from '@/components/providers'
@@ -52,6 +52,8 @@ export default function GoogleSignInButton({
   const { redirectUserByRole } = useAuth()
   const { showLoader, hideLoader } = useLoader()
   const showAlert = useAlert()
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   // Detect theme
   const isDarkTheme = typeof window !== 'undefined' && 
@@ -146,10 +148,28 @@ export default function GoogleSignInButton({
   }, [showLoader, hideLoader, showAlert, redirectUserByRole, onSuccess, disabled])
 
 
+  // Handle mounting state
   useEffect(() => {
-    // Load Google Sign-In script
+    setIsMounted(true)
+  }, [])
+
+  // Load Google script and initialize
+  useEffect(() => {
+    if (!isMounted || disabled || !env.GOOGLE_CLIENT_ID) {
+      return
+    }
+
     const loadGoogleScript = () => {
-      if (window.google) {
+      // Check if Google is already loaded
+      if (window.google?.accounts?.id) {
+        setIsGoogleLoaded(true)
+        return
+      }
+
+      // Check if script is already being loaded
+      const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]')
+      if (existingScript) {
+        existingScript.addEventListener('load', () => setIsGoogleLoaded(true))
         return
       }
 
@@ -158,28 +178,7 @@ export default function GoogleSignInButton({
       script.async = true
       script.defer = true
       script.onload = () => {
-        if (window.google) {
-          // Initialize Google Sign-In
-          window.google.accounts.id.initialize({
-            client_id: env.GOOGLE_CLIENT_ID,
-            callback: handleGoogleResponse,
-            auto_select: false
-          })
-
-          // Render the button
-          const buttonDiv = buttonRef.current
-          if (buttonDiv) {
-            buttonDiv.innerHTML = ''
-            window.google.accounts.id.renderButton(buttonDiv, {
-              theme: isDarkTheme ? 'filled_black' : 'outline',
-              size: 'large',
-              text: buttonText,
-              shape: 'rectangular',
-              logo_alignment: 'left',
-              width: buttonDiv.offsetWidth || 350
-            })
-          }
-        }
+        setIsGoogleLoaded(true)
       }
       script.onerror = () => {
         showAlert({
@@ -187,41 +186,77 @@ export default function GoogleSignInButton({
           message: 'Failed to load Google Sign-In. Please check your internet connection.'
         })
       }
-      document.body.appendChild(script)
+      document.head.appendChild(script)
     }
 
-    if (!disabled) {
-      loadGoogleScript()
+    loadGoogleScript()
+  }, [isMounted, disabled, showAlert])
+
+  // Initialize and render Google button
+  useEffect(() => {
+    if (!isMounted || !isGoogleLoaded || !window.google?.accounts?.id || !buttonRef.current) {
+      return
     }
-  }, [disabled, handleGoogleResponse, buttonText, isDarkTheme, showAlert])
+
+    try {
+      // Initialize Google Sign-In
+      window.google.accounts.id.initialize({
+        client_id: env.GOOGLE_CLIENT_ID,
+        callback: handleGoogleResponse,
+        auto_select: false
+      })
+
+      // Render the button
+      const buttonDiv = buttonRef.current
+      if (buttonDiv) {
+        buttonDiv.innerHTML = ''
+        window.google.accounts.id.renderButton(buttonDiv, {
+          theme: isDarkTheme ? 'filled_black' : 'outline',
+          size: 'large',
+          text: buttonText,
+          shape: 'rectangular',
+          logo_alignment: 'left',
+          width: buttonDiv.offsetWidth || 350
+        })
+      }
+    } catch (error) {
+      console.error('Error initializing Google Sign-In:', error)
+      showAlert({
+        type: 'error',
+        message: 'Failed to initialize Google Sign-In'
+      })
+    }
+  }, [isMounted, isGoogleLoaded, handleGoogleResponse, buttonText, isDarkTheme, showAlert])
 
   // Listen for theme changes
   useEffect(() => {
+    if (!isMounted || !isGoogleLoaded) {
+      return
+    }
+
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleThemeChange = () => {
-      if (window.google && env.GOOGLE_CLIENT_ID) {
+      if (window.google?.accounts?.id && buttonRef.current) {
         // Re-render button with new theme
         const buttonDiv = buttonRef.current
-        if (buttonDiv) {
-          buttonDiv.innerHTML = ''
-          window.google.accounts.id.renderButton(buttonDiv, {
-            theme: mediaQuery.matches ? 'filled_black' : 'outline',
-            size: 'large',
-            text: buttonText,
-            shape: 'rectangular',
-            logo_alignment: 'left',
-            width: buttonDiv.offsetWidth || 350
-          })
-        }
+        buttonDiv.innerHTML = ''
+        window.google.accounts.id.renderButton(buttonDiv, {
+          theme: mediaQuery.matches ? 'filled_black' : 'outline',
+          size: 'large',
+          text: buttonText,
+          shape: 'rectangular',
+          logo_alignment: 'left',
+          width: buttonDiv.offsetWidth || 350
+        })
       }
     }
 
     mediaQuery.addEventListener('change', handleThemeChange)
     return () => mediaQuery.removeEventListener('change', handleThemeChange)
-  }, [buttonText])
+  }, [isMounted, isGoogleLoaded, buttonText])
 
-  // Don't render if Google Client ID is not configured
-  if (!env.GOOGLE_CLIENT_ID) {
+  // Don't render if Google Client ID is not configured or not mounted
+  if (!env.GOOGLE_CLIENT_ID || !isMounted) {
     return null
   }
 

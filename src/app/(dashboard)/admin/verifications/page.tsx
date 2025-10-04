@@ -98,13 +98,6 @@ export default function AdminSellersPage() {
       
       setApplications(mappedApplications)
       setTotalItems(paginationData.total || 0)
-      
-      // Show success message on successful fetch
-      if (mappedApplications && mappedApplications.length > 0) {
-        setAlertType('success')
-        setAlertMessage(`Successfully loaded ${mappedApplications.length} applications.`)
-        setShowAlert(true)
-      }
     } catch (error) {
       console.error('Error fetching applications:', error)
       setError(error instanceof Error ? error.message : 'Failed to load applications')

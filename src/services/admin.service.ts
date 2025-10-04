@@ -594,9 +594,13 @@ class AdminService {
   }
 
   /**
-   * Send Google Meet link to seller with validation
+   * Send Calendly meeting link to seller with validation
    */
-  async sendMeetLink(id: string): Promise<ApiResponse<MeetLinkResponse>> {
+  async sendMeetLink(id: string, meetingData?: {
+    meetingLink: string;
+    meetingDuration: number;
+    meetingInstructions: string;
+  }): Promise<ApiResponse<MeetLinkResponse>> {
     return withPerformanceMonitoring(
       async () => {
         try {
@@ -608,8 +612,31 @@ class AdminService {
             };
           }
 
+          // Validate meeting data if provided
+          if (meetingData) {
+            if (!meetingData.meetingLink || meetingData.meetingLink.trim().length === 0) {
+              return {
+                success: false,
+                message: 'Meeting link is required'
+              };
+            }
+
+            if (meetingData.meetingDuration < 15 || meetingData.meetingDuration > 120) {
+              return {
+                success: false,
+                message: 'Meeting duration must be between 15 and 120 minutes'
+              };
+            }
+          }
+
+          const requestData = meetingData ? {
+            meetingLink: meetingData.meetingLink.trim(),
+            meetingDuration: meetingData.meetingDuration,
+            meetingInstructions: meetingData.meetingInstructions?.trim() || ''
+          } : {};
+
           return await handleServiceResponse(
-            () => apiClient.post<MeetLinkResponse>(`${this.baseUrl}/${id}/send-meet`),
+            () => apiClient.post<MeetLinkResponse>(`${this.baseUrl}/${id}/send-meet`, requestData),
             {
               retryOptions: {
                 maxRetries: 1, // Email operations should not be retried aggressively
