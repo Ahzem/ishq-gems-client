@@ -8,6 +8,7 @@ import { ReactNode } from 'react'
 export * from './gems'
 export * from './auth'
 export * from './notifications'
+export * from './chart.types'
 
 /**
  * SEO props interface
